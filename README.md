@@ -1,3 +1,2 @@
-# 👹 Caido Plugin
-**Features**
+# 👺 Caido Plugin
 🎨 Add highlight colors & Shortcuts
