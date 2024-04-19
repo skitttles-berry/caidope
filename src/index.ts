@@ -1,20 +1,11 @@
 import { Caido } from "@caido/sdk-frontend";
-import { helper } from "./helper";
 import { highlight } from "./highlight";
 
-Caido.commands.register("my-sample-command", {
-  name: "My Sample Command",
+Caido.commands.register("highlight: red", {
+  name: "highlight: red",
   run: () => {
-    helper();
+    highlight("var(--c-highlight-color-red)");
   },
 });
 
-Caido.commands.register("highlight", {
-  name: "highlight",
-  run: () => {
-    highlight();
-  },
-});
-
-Caido.commandPalette.register("my-sample-command");
-Caido.commandPalette.register("highlight");
+Caido.commandPalette.register("highlight: red");
