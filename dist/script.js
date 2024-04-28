@@ -1,82 +1,83 @@
-const e = window.Caido, c = () => {
-  let r = [""];
-  return document.querySelectorAll('div[data-is-selected="true"].c-table__item-row').forEach(function(t, o, a) {
-    var n, g;
-    let l = (g = (n = t.querySelector('div[data-column-id="ID"]')) == null ? void 0 : n.querySelector(".c-item-cell__inner")) == null ? void 0 : g.textContent;
-    l != null && r.push(l);
-  }), r;
-}, h = async (r) => {
+const t = window.Caido, u = () => {
+  let e = [];
+  return document.querySelectorAll('div[data-is-selected="true"].c-table__item-row').forEach(function(r, o, l) {
+    var i, g;
+    let a = (g = (i = r.querySelector('div[data-column-id="ID"]')) == null ? void 0 : i.querySelector(".c-item-cell__inner")) == null ? void 0 : g.textContent;
+    a != null && e.push(a);
+  }), e;
+}, c = (e) => {
+  for (const r of u())
+    r != "" && window.Caido.graphql.updateRequestMetadata({ id: r, input: { color: e } });
+}, m = async () => {
+  var a, i, g, s;
+  let e = [], r = "", o = "";
+  const l = u();
+  for (let n = 0; n < l.length; n++)
+    if (l[n] != "") {
+      let h = await t.graphql.request({ id: l[n] });
+      e[n] = `[ HTTP Request ]\r
+`, e[n] += d((a = (await h).request) == null ? void 0 : a.raw), e[n] += `\r
+\r
+[ HTTP Response ]\r
+`, o = (g = (i = (await h).request) == null ? void 0 : i.response) == null ? void 0 : g.id, e[n] += d((s = (await t.graphql.response({ id: o })).response) == null ? void 0 : s.raw), e[n] += `\r
+`;
+    } else
+      continue;
+  r += "```\r\n", r += e.join(`\r
+\r
+`), r += "```", console.log(r), p(r);
+}, p = async (e, r, o) => {
   try {
-    let t = "";
-    const o = localStorage.getItem("CAIDO_AUTHENTICATION");
-    if (!o)
-      return;
-    t = JSON.parse(o).accessToken;
-    const a = await fetch(document.location.origin + "/graphql", {
-      body: JSON.stringify(r),
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + t
-      }
-    });
-    if (!a.ok)
-      throw new Error(`HTTP error! status: ${a.status}`);
-  } catch (t) {
-    console.error("Error during dropRequest execution:", t);
+    await navigator.clipboard.writeText(e), r && r();
+  } catch {
+    o && o();
   }
-}, i = (r) => {
-  for (const t of c())
-    t != "" && h({
-      operationName: "updateRequestMetadata",
-      query: `mutation updateRequestMetadata(
-          $rowId: String!
-          $color: String
-        ) {
-          updateRequestMetadata(
-            id: $rowId
-            input:{color: $color}
-          ) {
-            metadata{color}
-          }
-        }`,
-      variables: {
-        rowId: t,
-        color: r
-      }
-    });
+}, d = (e) => {
+  const r = /\r\nContent\-Type\:\ (image|audio)\//gi, o = /\r\n\r\n.*/gi, l = /\\x00/gi, a = /\@\@/gi;
+  let i = "";
+  return e != null && e.search(r) != -1 ? (i = e.replace(o, `\r
+\r
+...(Data)...`), i = i.replace(l, "&#0;"), i = i.replace(a, ""), i) : e;
 };
-e.commands.register("Highlight: Red", {
+t.commands.register("Copy request & response", {
+  name: "Copy request & response",
+  run: () => {
+    m();
+  }
+});
+t.commands.register("Highlight: Red", {
   name: "Highlight: Red",
   run: () => {
-    i("var(--c-highlight-color-red)");
+    c("var(--c-highlight-color-red)");
   }
 });
-e.commands.register("Highlight: Green", {
+t.commands.register("Highlight: Green", {
   name: "Highlight: Green",
   run: () => {
-    i("var(--c-highlight-color-green)");
+    c("var(--c-highlight-color-green)");
   }
 });
-e.commands.register("Highlight: Blue", {
+t.commands.register("Highlight: Blue", {
   name: "Highlight: Blue",
   run: () => {
-    i("var(--c-highlight-color-blue)");
+    c("var(--c-highlight-color-blue)");
   }
 });
-e.commands.register("Highlight: Purple", {
+t.commands.register("Highlight: Purple", {
   name: "Highlight: Purple",
   run: () => {
-    i("var(--c-highlight-color-purple)");
+    c("var(--c-highlight-color-purple)");
   }
 });
-e.commands.register("Highlight: Black", {
+t.commands.register("Highlight: Black", {
   name: "Highlight: Black",
   run: () => {
-    i("var(--c-highlight-color-black)");
+    c("var(--c-highlight-color-black)");
   }
 });
-e.commandPalette.register("Highlight: Red");
-e.commandPalette.register("Highlight: Green");
-e.commandPalette.register("Highlight: Blue");
-e.commandPalette.register("Highlight: Purple");
-e.commandPalette.register("Highlight: Black");
+t.commandPalette.register("Copy request & response");
+t.commandPalette.register("Highlight: Red");
+t.commandPalette.register("Highlight: Green");
+t.commandPalette.register("Highlight: Blue");
+t.commandPalette.register("Highlight: Purple");
+t.commandPalette.register("Highlight: Black");

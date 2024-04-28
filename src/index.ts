@@ -1,5 +1,13 @@
 import { Caido } from "@caido/sdk-frontend";
 import { highlight } from "./highlight";
+import { copyPackets } from "./copyPackets";
+
+Caido.commands.register("Copy request & response", {
+  name: "Copy request & response",
+  run: () => {
+    copyPackets();
+  },
+});
 
 Caido.commands.register("Highlight: Red", {
   name: "Highlight: Red",
@@ -36,6 +44,7 @@ Caido.commands.register("Highlight: Black", {
   },
 });
 
+Caido.commandPalette.register("Copy request & response");
 Caido.commandPalette.register("Highlight: Red");
 Caido.commandPalette.register("Highlight: Green");
 Caido.commandPalette.register("Highlight: Blue");
