@@ -6,7 +6,7 @@
 
 ## Features
 ### 🎨 Add highlight colors & Shortcuts
-- Add Highlighting in 'Caido > Settings > Shorcuts' and 'Command palette'.
-### 🔖 Add request/response copy function in Shortcuts and Command palette
-- Remove binary data.
-- Todo : Remove multipart binary data.
+- Add Highlighting shortcut in 'Caido > Settings > Shorcuts' or executes at 'Command palette'.
+### 🔖 Add request/response copy function.
+- Add copy shortcut in 'Caido > Settings > Shorcuts' or executes at 'Command palette'.
+- Todo : Add the 'Copy request/response' shortcut function in the replay tab.
