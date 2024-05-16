@@ -22,12 +22,12 @@ npm run build
 ## Screenshots
 [ Caido > Settings > Shortcuts ]
 
-<img src = "img/caidope_highlight-shortcut.png" width="50%">
+<img src = "img/caidope_highlight-shortcut.png" width="70%">
 
 [ Caido > Commands ]
 
-<img src = "img/caidope_highlight-commands.png" width="30%">
+<img src = "img/caidope_highlight-commands.png" width="60%">
 
 [ Copied request & response ]
 
-<img src = "img/copiedPacket.png" width="20%">
+<img src = "img/copiedPacket.png" width="50%">
