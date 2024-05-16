@@ -1,6 +1,8 @@
 import { Caido } from "@caido/sdk-frontend";
-import type { RequestQuery } from "@caido/sdk-frontend/src/types/__generated__/graphql-sdk";
-import { getSelectedRowsId } from "./getSelectedRowsId";
+import { RequestQuery } from "@caido/sdk-frontend/src/types/__generated__/graphql-sdk";
+import { copyDialog } from "./dialogUtil";
+import { getSelectedRowsId, copyToClipboard, getBrowserKind, getCurrenMenu } from "./utils";
+
 /*
   variables
     - packets : All requests and responses string as array.
@@ -9,88 +11,128 @@ import { getSelectedRowsId } from "./getSelectedRowsId";
     - Get all requests and responses sets that selected on history/search tab on as markdown
 */
 export const copyPackets = async () => {
-  let packets :string[] = [];
-  let copied : string = "";
-  let responseId :string | undefined = "";
-  let getRequestData  :Promise<RequestQuery>
+  let copy : string = "";
 
-  const rowIds :string[] = getSelectedRowsId();
+  if (getCurrenMenu() === "Replay") {
+    let requestId :string|null = "";
+    let responseId :string|null = "";
+    let request :string = "";
+    let response :string = "";
+    
+    const requestObj = document.querySelector('div.c-writable-request');
 
-  // 'for loop with index' is execute sequentially with Promise.
-  // cleanup() : remove garbage characters and cleanup string.
-  for (let idx = 0; idx < rowIds.length; idx++){
-    if (rowIds[idx] !== "") {
-      getRequestData = await Caido.graphql.request({id:rowIds[idx]});
-
-      packets[idx] = "[ HTTP Request ]\r\n";
-      packets[idx] += cleanup((await getRequestData).request?.raw || "");
-
-      packets[idx] += "[ HTTP Response ]\r\n"
-      responseId = (await getRequestData).request?.response?.id || "";
-      packets[idx] += cleanup((await Caido.graphql.response({id:responseId})).response?.raw || "");
+    if (requestObj !== null && requestObj !== undefined) {
+      requestId = requestObj.getAttribute('data-request-id');
     } else {
-      continue;
+      console.error("❗ ERROR : There is no request object.");
+      return;
     }
+
+    const responseObj = document.querySelector('div.c-response[data-response-id]');
+    
+    if (responseObj !== null && responseObj !== undefined) {
+      responseId = responseObj.getAttribute('data-response-id') || "";
+    } else {
+      responseId = "";
+    }
+    
+    if (requestId !== null && requestId !== undefined && requestId !== "") {
+      request = cleanupPacket((await Caido.graphql.request({id:requestId})).request?.raw || "");
+    } else {
+      request = "";
+    }
+
+    if (responseId !== null && responseId !== undefined && responseId !== "") {
+      response = cleanupPacket((await Caido.graphql.response({id:responseId})).response?.raw || "");
+    } else {
+      response = "";
+    }
+
+    copy = "[ HTTP Request ]\r\n";
+    copy += request.trimEnd();
+    copy += "\r\n\r\n";
+    copy += "[ HTTP Response ]\r\n"
+    copy += response.trimEnd();
+  } else if (getCurrenMenu() === "HTTP History" || getCurrenMenu() === "Search") {
+    const rowIds :string[] = getSelectedRowsId();
+    let packets :string[] = [];
+
+    // 'for loop with index' is execute sequentially with Promise.
+    // cleanup() : remove garbage characters and cleanup string.
+    for (let idx = 0; idx < rowIds.length; idx++){
+      if (rowIds[idx] !== "") {
+        let getRequestData :Promise<RequestQuery> = await Caido.graphql.request({id:rowIds[idx]});
+        if (getRequestData === null || getRequestData === undefined) {
+          continue;
+        }
+
+        let requestObj :any = (await getRequestData).request;
+        if (requestObj === null || requestObj === undefined) {
+          continue;
+        }
+
+        packets[idx] = "[ HTTP Request ]\r\n";
+        packets[idx] += cleanupPacket(requestObj.raw || "").trimEnd();
+        packets[idx] += "\r\n\r\n";
+
+        packets[idx] += "[ HTTP Response ]\r\n";
+        let responseObj :any = requestObj.response;
+        if (responseObj === null || responseObj === undefined) {
+          continue;
+        }
+
+          packets[idx] += cleanupPacket((await Caido.graphql.response({id:responseObj.id})).response?.raw || "").trimEnd();
+          //console.log(packets[idx]);
+      } else {
+          continue;
+      }
+    }
+
+    copy += packets.join("\r\n\r\n\r\n");
+    copy = copy.trimEnd();
+  } else {
+    console.error("❗ ERROR : This function is only available on the History / Search / Replay tab.");
+    return;
   }
 
-  copied += packets.join("\r\n\r\n");
-  copyToClipboard(copied);
-  console.log(copied)
-};
-
-// Safari does not allow write to clipboard without user actions.
-// Bypass OR Add user actions...
-export const copyToClipboard = async (
-  text: string
-) => {
-  try {
-    if (getBrowserKind() === "Safari") {
-      const clipboardItem = new ClipboardItem({
-        'text/plain': dummy().then((result) => {
-
-          if (!result) {
-            return new Promise(async (resolve) => {
-              const copyText = ``
-              resolve(new Blob([copyText]))
-            })
-          }
-
-          const copyText = text
-          return new Promise(async (resolve) => {
-              resolve(new Blob([copyText], {type: 'text/plain'}))
-          })
-        }),
-      })
-
-     navigator.clipboard.write([clipboardItem])
-    } else {
-      await navigator.clipboard.writeText(text);
-    }
-  } catch (error) {
-    console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
+  //console.log(copied)
+  if (getBrowserKind() === "Edge") {
+    copyDialog(copy);
+  } else {
+    copyToClipboard(copy);
   }
 };
+
 
 // Remove binary between the multipart boundary.
 // Shorten the string.
-const cleanup = (str :string) => {
+const cleanupPacket = (str :string) => {
   if (str === "" || str === null || str === undefined) {return "\r\n\r\n";}
 
+  // Split body to header and body
   let splited :string[] = str.split("\r\n\r\n");
   let header :string = splited.slice(0, 1).join("");
   let body :string = splited.slice(1).join("\r\n\r\n");
+
   let removed :string = ""
 
-  const re_typeText :RegExp = /\r\nContent\-Type\:\s(text\/|application\/json|application\/xml|application\/http)/i;
+  // Regular expression
+  const re_typeText :RegExp = /\r\nContent\-Type\:\s(text\/|application\/json|application\/xml|application\/http|application\/javascript|application\/x\-www\-form\-urlencoded)/i;
   const re_method : RegExp= /^(GET|HEAD|OPTIONS|TRACE).*$/gi;
+  const re_contentType :RegExp = /Content\-Type\:\s.*/gi;
   const re_multipart :RegExp = /Content\-Type\:\smultipart\/(form\-data|mixed)/gi;
   const re_boundary :RegExp = /boundary\=\"?([-a-zA-Z0-9'\(\)+_,-.\/:=? ]*)(?<! )\"?/gi;
-  const re_00 :RegExp = /\\x00/gi;
+  const re_authorization :RegExp = /(Authorization:\s*Bearer\s+)[^\s]+/g;
+  const re_eof :RegExp = /\x00/g;
   const re_atat :RegExp = /\@\@/gi
 
+  // Remove binary data
   if (header.search(re_method) !== -1) {
+    // Clean up request packet when method is GET, HEAD, OPTIONS, TRACE
     body = "";
   } else if (body.length > 0 && header.search(re_multipart) !== -1 && header.search(re_boundary) !== -1 ) {
+    // Clean up multi-part packet
+    // Get boundary
     let boundary :string = header.match(re_boundary)?.toString() || "";
     boundary = boundary.split("=")[1]?.trim() || "--";
     boundary = body.match(`\-\-${boundary}`)?.toString() || "----";
@@ -98,16 +140,19 @@ const cleanup = (str :string) => {
     let newContent = "";
     let parts :string[] = body.split(boundary)
 
+    // Remove first and last index, because it's empty.
     if (parts.length > 1){
       for (let idx = 1; idx < parts.length-1; idx++) {
         newContent += boundary;
         if (parts[idx] === undefined || parts[idx] === null || parts[idx]?.trimEnd().length === 0) { newContent += "\r\n"; continue; }
   
-        if (parts[idx]?.search(/Content\-Type\:\s.*/gi) !== -1 && parts[idx]?.search(re_typeText) === -1) {
+        // Check if it has Content-Type header and it's not text type.
+        if (parts[idx]?.search(re_contentType) !== -1 && parts[idx]?.search(re_typeText) === -1) {
           newContent += parts[idx]?.replace(/\r\n\r\n[\s\S]*/, "\r\n\r\n...data...\r\n");
         } else {
+          // Clean up packet when it's text type.
           if (parts[idx]!.length > 5000) {
-            newContent += (parts[idx]?.substring(0, 5000) + "\r\n...\r\n");
+            newContent += (parts[idx]?.substring(0, 5000) + "\r\n...data...\r\n");
           } else {
             newContent += parts[idx];
           }
@@ -119,51 +164,41 @@ const cleanup = (str :string) => {
       }
 
       body = newContent;
-      removed = header + "\r\n\r\n" + body;
     }
-  } else if (header.search(/Content\-Type\:\s.*/gi) !== -1 && header.search(re_typeText) === -1) {
+  } else if (header.search(re_contentType) !== -1 && header.search(re_typeText) === -1) {
+    // Clean up packet when it's not text type.
     body = "...data...";
   }
 
-  if (header.length > 5000) { header = header.substring(0, 5000) + "\r\n..." }
-  if (body.length > 5000) { body = body.substring(0, 5000) + "\r\n..." }
+  // Shorten the body string.
+  if (header.length > 5000) { header = header.substring(0, 3000) + "\r\n...data..." }
+  if (body.length > 5000) { body = body.substring(0, 5000) + "\r\n...data..." }
 
+  // Replace special characters and cookies.
+  header = header.replace(re_atat, "&#64;&#64;");
+  header = header.replace(re_authorization, "$1[Redacted]");
+  header = maskCookies(header);
+  
   removed = header + "\r\n\r\n" + body;
-  removed = removed.replace(re_00, "&#0;");
-  removed = removed.replace(re_atat, "&#64;&#64;");
-  removed = removed.trimEnd() + "\r\n\r\n";
+  removed = removed.replace(re_eof, "");
+  removed = removed.trimEnd();
 
   return removed;
 }
 
-// get browser kind.
-// Because the safari Clipboard API issue.
-const getBrowserKind = () => {
-  const browsers = [
-    'Chrome', 'Opera',
-    'WebTV', 'Whale',
-    'Beonex', 'Chimera',
-    'NetPositive', 'Phoenix',
-    'Firefox', 'Safari',
-    'SkipStone', 'Netscape',
-    'Mozilla',
-  ];
-  
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  
-  if (userAgent.includes('edg')) {
-    return 'Edge';
-  }
 
-  if (userAgent.includes('trident') || userAgent.includes('msie')) {
-    return "Internet Explorer";
-  }
+const maskCookies = (headerText :string) => {
+  // Cookie 헤더 마스킹
+  headerText = headerText.replace(/(Cookie:\s*)((([^;=\s]+=[^;]*)(;[\s]|$))*)/g, (match, p1, p2, p3, p4) => {
+    let cookies = p2.split(';').map((cookie: string) => {
+      let parts = cookie.split('=');
+      return parts[0] + "=[Redacted]";
+    });
+    return p1 + cookies.join('; ');
+  });
 
-  return browsers.find(browser => userAgent.includes(browser.toLowerCase())) || 'Other';
-}
+  // Set-Cookie 헤더 마스킹
+  headerText = headerText.replace(/(Set-Cookie:\s*[^=]+=\s*)([^;]+)(;?)/g, "$1[Redacted]$3");
 
-// Need dummy async function when bypassing safari clipboard API restriction.
-export const dummy = async () => {
-  console.log("Copy requests & responses");
-  return true;
+  return headerText;
 }

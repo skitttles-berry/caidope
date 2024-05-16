@@ -40,7 +40,7 @@ Caido.commands.register("Highlight: Purple", {
 Caido.commands.register("Highlight: Black", {
   name: "Highlight: Black",
   run: () => {
-    highlight("var(--c-highlight-color-black)");
+    highlight("black");
   },
 });
 

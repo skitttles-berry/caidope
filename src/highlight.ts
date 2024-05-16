@@ -1,4 +1,4 @@
-import { getSelectedRowsId } from "./getSelectedRowsId";
+import { getSelectedRowsId } from "./utils";
 
 export const highlight = (color: String) => {
   for (const rowId of getSelectedRowsId()){
