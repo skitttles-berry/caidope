@@ -1,6 +1,7 @@
+import type { Caido } from "@caido/sdk-frontend";
 import { copyToClipboard } from './utils';
 
-export const copyDialog = (copied :string) => {
+export const copyDialog = (caido :Caido, copied :string) => {
     const text = document.createElement("p");
     text.innerText = "Press enter key to copy."
     text.style.cssText = `
@@ -9,7 +10,7 @@ export const copyDialog = (copied :string) => {
         height: auto;
     `;
     
-    const copyButton =  window.Caido.ui.button({
+    const copyButton =  caido.ui.button({
         variant: "primary",
         label: "Copy",
         size: "small",
@@ -24,7 +25,7 @@ export const copyDialog = (copied :string) => {
         margin: 5px;
     `;
   
-    const cancelButton =  window.Caido.ui.button({
+    const cancelButton =  caido.ui.button({
         variant: "tertiary",
         label: "Cancel",
         size: "small",
@@ -59,7 +60,7 @@ export const copyDialog = (copied :string) => {
     buttonGroup.appendChild(cancelButton);
     
     // Create the dialog element
-    let dialog = window.Caido.ui.card({body: text, footer: buttonGroup});
+    let dialog = caido.ui.card({body: text, footer: buttonGroup});
 
     if (!dialog) {
         console.error("❗ ERROR : There is no dialog.");

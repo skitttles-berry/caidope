@@ -1,4 +1,4 @@
-import { Caido } from "@caido/sdk-frontend";
+import type { Caido } from "@caido/sdk-frontend";
 import { RequestQuery } from "@caido/sdk-frontend/src/types/__generated__/graphql-sdk";
 import { copyDialog } from "./dialogUtil";
 import { getSelectedRowsId, copyToClipboard, getBrowserKind, getCurrenMenu } from "./utils";
@@ -10,7 +10,7 @@ import { getSelectedRowsId, copyToClipboard, getBrowserKind, getCurrenMenu } fro
   Feature
     - Get all requests and responses sets that selected on history/search tab on as markdown
 */
-export const copyPackets = async () => {
+export const copyPackets = async (caido :Caido) => {
   let copy : string = "";
 
   if (getCurrenMenu() === "Replay") {
@@ -37,13 +37,13 @@ export const copyPackets = async () => {
     }
     
     if (requestId !== null && requestId !== undefined && requestId !== "") {
-      request = cleanupPacket((await Caido.graphql.request({id:requestId})).request?.raw || "");
+      request = cleanupPacket((await caido.graphql.request({id:requestId})).request?.raw || "");
     } else {
       request = "";
     }
 
     if (responseId !== null && responseId !== undefined && responseId !== "") {
-      response = cleanupPacket((await Caido.graphql.response({id:responseId})).response?.raw || "");
+      response = cleanupPacket((await caido.graphql.response({id:responseId})).response?.raw || "");
     } else {
       response = "";
     }
@@ -60,8 +60,8 @@ export const copyPackets = async () => {
     // 'for loop with index' is execute sequentially with Promise.
     // cleanup() : remove garbage characters and cleanup string.
     for (let idx = 0; idx < rowIds.length; idx++){
-      if (rowIds[idx] !== "") {
-        let getRequestData :Promise<RequestQuery> = await Caido.graphql.request({id:rowIds[idx]});
+      if (rowIds[idx] !== "" && rowIds[idx] !== null && rowIds[idx] !== undefined) {
+        let getRequestData :Promise<RequestQuery> = caido.graphql.request({id:rowIds[idx as number] as string});
         if (getRequestData === null || getRequestData === undefined) {
           continue;
         }
@@ -81,7 +81,7 @@ export const copyPackets = async () => {
           continue;
         }
 
-          packets[idx] += cleanupPacket((await Caido.graphql.response({id:responseObj.id})).response?.raw || "").trimEnd();
+          packets[idx] += cleanupPacket((await caido.graphql.response({id:responseObj.id})).response?.raw ?? "").trimEnd();
           //console.log(packets[idx]);
       } else {
           continue;
@@ -97,7 +97,7 @@ export const copyPackets = async () => {
 
   //console.log(copied)
   if (getBrowserKind() === "Edge") {
-    copyDialog(copy);
+    copyDialog(caido, copy);
   } else {
     copyToClipboard(copy);
   }
