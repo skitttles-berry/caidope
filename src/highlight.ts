@@ -1,11 +1,11 @@
 import type { Caido } from "@caido/sdk-frontend";
 import { getSelectedRowsId } from "./utils";
-import { InputMaybe, Scalars } from "@caido/sdk-frontend/src/types/__generated__/graphql-sdk";
+import { InputMaybe } from "@caido/sdk-frontend/src/types/__generated__/graphql-sdk";
 
-export const highlight = (caido :Caido, color: InputMaybe<Scalars["String"]["input"]>) => {
+export const highlight = (caido :Caido, color: InputMaybe<string>) => {
   for (const rowId of getSelectedRowsId()){
-    if (rowId != "") {
-      caido.graphql.updateRequestMetadata({id:rowId, input:{color :color}});
+    if (rowId != "" && rowId != null && rowId != undefined) {
+      caido.graphql.updateRequestMetadata({id:rowId, input:{color:color}});
     }
   }
 };

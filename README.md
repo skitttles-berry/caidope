@@ -1,34 +1,36 @@
-<div align="center">
-  <img width="1000" alt="image" src="https://user-images.githubusercontent.com/6225588/211916659-567751d1-0225-402b-9141-4145c18b0834.png">
+# 👺 Caido plugins
+### ✨Apply
+Click '**Install package**' in '**Caido > Workspace > Plugins**' and select the '**dist-zip/plugin.zip**' plugin file.
 
-  <br />
-  <br />
-  <a href="https://caido.io/">Website</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://dashboard.caido.io/">Dashboard</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://docs.caido.io/" target="_blank">Docs</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://links.caido.io/roadmap">Roadmap</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://github.com/caido/caido/tree/main/brand">Branding</a>
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  <a href="https://links.caido.io/www-discord" target="_blank">Discord</a>
-  <br />
-  <hr />
-</div>
+### ⚙ Build
+```zsh
+pnpm install
+pnpm build
+```
 
-# 🔰 StarterKit Plugin
+## Features
+### 🎨 Add highlighting shorcuts & commands
+- Use the highlighting feature with shortcuts in the HTTP History and Search tabs.
+- Add a highlighting shortcut in 'Caido > Settings > Shortcuts' or execute it from the 'Command Palette'.
 
-This is the starter kit for the Caido plugin system.
+### 🔖 Add Request/Response Copy Function
+- Copy requests and responses using a shortcut in the HTTP History, Search, and Replay tabs.
+- Add a copy shortcut in 'Caido > Settings > Shortcuts' or execute it from the 'Command Palette'.
+- The HTTP History and Search tabs allow you to copy multiple packets.
 
-For now it only supports Frontend plugins.
+## Screenshots
+[ Caido > Settings > Shortcuts ]
 
-It is very early so expect a lot of improvements over the next months.
+<img src = "img/caidope_highlight-shortcut.png" width="70%">
 
-## 🏎️ Usage
+<br />
 
-1. `pnpm install`
-1. Make some modifications in `src`
-1. `pnpm build`
-1. Upload the plugin.zip in the `dist-zip` folder to your Caido instance
+[ Caido > Commands ]
+
+<img src = "img/caidope_highlight-commands.png" width="60%">
+
+<br />
+
+[ Copied request & response ]
+
+<img src = "img/copiedPacket.png" width="50%">

@@ -1,18 +1,18 @@
 {
-  "id": "starterkit-plugin",
-  "name": "StarterKit Plugin",
+  "id": "my-utils",
+  "name": "Collection of useful tools",
   "version": "0.1.0",
-  "description": "This is a starterkit plugin",
+  "description": "[Copy request & response] / [Shortcuts for coloring request]",
   "author": {
-    "name": "Caido Labs Inc.",
-    "email": "dev@caido.io",
-    "url": "https://github.com/caido/starterkit-plugin"
+    "name": "Ruff",
+    "email": "",
+    "url": "https://github.com/skitttles-berry/caidope"
   },
   "plugins": [
     {
       "kind": "frontend",
-      "id": "caido-extra-commands",
-      "name": "Extra Commands",
+      "id": "my-utils",
+      "name": "my-utils",
       "entrypoint": "frontend/script.js",
       "style": "frontend/style.css"
     }

@@ -10,7 +10,7 @@ export const init = (caido: Caido) => {
       copyPackets(caido);
     },
   });
-  
+
   caido.commands.register("Highlight: Red", {
     name: "Highlight: Red",
     run: () => {

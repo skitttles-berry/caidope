@@ -12,6 +12,7 @@
     "@caido/sdk-frontend": "0.37.0"
   },
   "devDependencies": {
+    "@types/node": "^20.14.9",
     "typescript": "5.4.3",
     "vite": "5.2.7",
     "vite-plugin-static-copy": "1.0.3",
