@@ -5,7 +5,7 @@ export const getSelectedRowsId = () => {
   document.querySelectorAll('div[data-is-selected="true"].c-table__item-row').forEach(function(currentValue, index, array) {
     let currentRow = currentValue.querySelector('div[data-column-id="ID"]')?.querySelector('.c-item-cell__inner')?.textContent
     if(currentRow !== null && currentRow !== undefined && currentRow !== ""){
-      currentRow = (parseInt(currentRow)+8).toString();
+      //currentRow = (parseInt(currentRow)+8).toString();
       selectedRowsId.push(currentRow);
       console.log("Request ID : " + currentRow + " has been added.");
     } else {

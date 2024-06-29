@@ -96,7 +96,7 @@ export const copyPackets = async (caido :Caido) => {
   }
 
   //console.log(copied)
-  if (getBrowserKind() === "Edge") {
+  if (getBrowserKind() === "Safari") {
     copyDialog(caido, copy);
   } else {
     copyToClipboard(copy);
@@ -176,7 +176,7 @@ const cleanupPacket = (str :string) => {
 
   // Replace special characters and cookies.
   header = header.replace(re_atat, "&#64;&#64;");
-  header = header.replace(re_authorization, "$1[Redacted]");
+  header = header.replace(re_authorization, "$1[REDACT]");
   header = maskCookies(header);
   
   removed = header + "\r\n\r\n" + body;
@@ -188,17 +188,17 @@ const cleanupPacket = (str :string) => {
 
 
 const maskCookies = (headerText :string) => {
-  // Cookie 헤더 마스킹
+  // Cookie Header masking
   headerText = headerText.replace(/(Cookie:\s*)((([^;=\s]+=[^;]*)(;[\s]|$))*)/g, (match, p1, p2, p3, p4) => {
     let cookies = p2.split(';').map((cookie: string) => {
       let parts = cookie.split('=');
-      return parts[0] + "=[Redacted]";
+      return parts[0] + "=[REDACT]";
     });
     return p1 + cookies.join('; ');
   });
 
-  // Set-Cookie 헤더 마스킹
-  headerText = headerText.replace(/(Set-Cookie:\s*[^=]+=\s*)([^;]+)(;?)/g, "$1[Redacted]$3");
+  // Cookie Header masking
+  headerText = headerText.replace(/(Set-Cookie:\s*[^=]+=\s*)([^;]+)(;?)/g, "$1[REDACT]$3");
 
   return headerText;
 }

@@ -105,7 +105,11 @@ export const copyDialog = (caido :Caido, copied :string) => {
 
     copyButton.onclick = () => {
         if (dialog) {
-            copyToClipboard(copied);
+            try {
+                navigator.clipboard.writeText(copied);
+              } catch (error) {
+                console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
+            }
             dialog.remove();
         }
     };
@@ -119,7 +123,11 @@ export const copyDialog = (caido :Caido, copied :string) => {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
             if (dialog) {
-                copyToClipboard(copied);
+                try {
+                    navigator.clipboard.writeText(copied);
+                  } catch (error) {
+                    console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
+                }
                 dialog.remove();
                 document.removeEventListener('keydown', (event) => {});
             }
