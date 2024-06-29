@@ -1,7 +1,7 @@
 import type { Caido } from "@caido/sdk-frontend";
 import { copyToClipboard } from './utils';
 
-export const copyDialog = (caido :Caido, copied :string) => {
+export const copyDialog = (caido: Caido, copied: string) => {
     const text = document.createElement("p");
     text.innerText = "Press enter key to copy."
     text.style.cssText = `
@@ -9,8 +9,8 @@ export const copyDialog = (caido :Caido, copied :string) => {
         width: auto;
         height: auto;
     `;
-    
-    const copyButton =  caido.ui.button({
+
+    const copyButton = caido.ui.button({
         variant: "primary",
         label: "Copy",
         size: "small",
@@ -24,8 +24,8 @@ export const copyDialog = (caido :Caido, copied :string) => {
     copyButton.style.cssText = `
         margin: 5px;
     `;
-  
-    const cancelButton =  caido.ui.button({
+
+    const cancelButton = caido.ui.button({
         variant: "tertiary",
         label: "Cancel",
         size: "small",
@@ -39,7 +39,7 @@ export const copyDialog = (caido :Caido, copied :string) => {
     cancelButton.style.cssText = `
         margin: 5px;
     `;
-    
+
     const buttonGroup = document.createElement("div");
 
     if (!buttonGroup) {
@@ -55,12 +55,12 @@ export const copyDialog = (caido :Caido, copied :string) => {
         width: auto;
         height: auto;
     `;
-    
+
     buttonGroup.appendChild(copyButton);
     buttonGroup.appendChild(cancelButton);
-    
+
     // Create the dialog element
-    let dialog = caido.ui.card({body: text, footer: buttonGroup});
+    let dialog = caido.ui.card({ body: text, footer: buttonGroup });
 
     if (!dialog) {
         console.error("❗ ERROR : There is no dialog.");
@@ -95,7 +95,7 @@ export const copyDialog = (caido :Caido, copied :string) => {
 
     // Append the dialog to the body
     const app = document.getElementById("app");
-    
+
     if (!app) {
         console.error("❗ ERROR : There is no app element.");
         return;
@@ -103,43 +103,58 @@ export const copyDialog = (caido :Caido, copied :string) => {
 
     app.appendChild(dialog);
 
+    function removeAllEventListeners() {
+        document.removeEventListener('keydown', handleEnterKey);
+        document.removeEventListener('keydown', handleEscKey);
+        document.removeEventListener('click', handleOutsideClick);
+    }
+
+    function closeDialog() {
+        if (dialog) {
+            removeAllEventListeners();
+            dialog.remove();
+        }
+    }
+
     copyButton.onclick = () => {
         if (dialog) {
             try {
                 navigator.clipboard.writeText(copied);
-              } catch (error) {
+            } catch (error) {
                 console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
             }
-            dialog.remove();
+            closeDialog();
         }
     };
 
     cancelButton.onclick = () => {
-        if (dialog) {
-            dialog.remove();
-        }
+        closeDialog();
     };
 
-    document.addEventListener('keydown', (event) => {
+    function handleEnterKey(event: KeyboardEvent) {
         if (event.key === 'Enter') {
-            if (dialog) {
-                try {
-                    navigator.clipboard.writeText(copied);
-                  } catch (error) {
-                    console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
-                }
-                dialog.remove();
-                document.removeEventListener('keydown', (event) => {});
+            try {
+                navigator.clipboard.writeText(copied);
+            } catch (error) {
+                console.error("❗ ERROR : Failed to Clipboard copy\n" + error)
             }
+            closeDialog();
         }
-    });
+    }
 
-    document.addEventListener('click', (event) => {
-        if (event.target !== dialog) {
-            if (dialog) {
-                dialog.remove();
-                document.removeEventListener('click', (event) => {});
-            }
+    function handleEscKey(event: KeyboardEvent) {
+        if (event.key === 'Escape' || event.key === 'Esc') {
+            closeDialog();
         }
-    });
-  }
+    }
+
+    function handleOutsideClick(event: MouseEvent) {
+        if (event.target !== dialog && !dialog.contains(event.target as Node)) {
+            closeDialog();
+        }
+    }
+
+    document.addEventListener('keydown', handleEnterKey);
+    document.addEventListener('keydown', handleEscKey);
+    document.addEventListener('click', handleOutsideClick);
+}

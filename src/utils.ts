@@ -19,28 +19,24 @@ export const getSelectedRowsId = () => {
 
 // get browser kind.
 export const getBrowserKind = () => {
-    const browsers = [
-      'Chrome', 'Opera',
-      'WebTV', 'Whale',
-      'Beonex', 'Chimera',
-      'NetPositive', 'Phoenix',
-      'Firefox', 'Safari',
-      'SkipStone', 'Netscape',
-      'Mozilla',
-    ];
-    
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    
-    if (userAgent.includes('edg')) {
-      return 'Edge';
-    }
-  
-    if (userAgent.includes('trident') || userAgent.includes('msie')) {
-      return "Internet Explorer";
-    }
-  
-    return browsers.find(browser => userAgent.includes(browser.toLowerCase())) || 'Other';
+  const browsers = [
+    'Chrome', 'Opera', 'WebTV', 'Whale', 'Beonex',
+    'Chimera', 'NetPositive', 'Phoenix', 'Firefox',
+    'Safari', 'SkipStone', 'Netscape', 'Mozilla'
+  ];
+
+  const userAgent = window.navigator.userAgent.toLowerCase();
+
+  if (userAgent.includes('edg')) {
+    return 'Edge';
   }
+
+  if (userAgent.includes('trident') || userAgent.includes('msie')) {
+    return "Internet Explorer";
+  }
+
+  return browsers.find(browser => userAgent.includes(browser.toLowerCase())) || 'Other';
+}
 
 
 export const copyToClipboard = async (
@@ -55,10 +51,15 @@ export const copyToClipboard = async (
 
 
 export const getCurrenMenu = () => {
-  let element = window.document.querySelector('div[data-is-active="true"].c-sidebar-item .c-sidebar__label')
+  const element = document.querySelector('.c-content');
+  let menu :String | null | undefined = "";
+  if (element) {
+    menu = element.getAttribute('data-page'); // '속성명'을 가져올 속성으로 대체
+  }
+
   if (element === null || element === undefined) {
       return "unknown";
   }
   
-  return element.innerHTML.toString();
+  return menu;
 };

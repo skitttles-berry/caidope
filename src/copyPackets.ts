@@ -13,7 +13,7 @@ import { getSelectedRowsId, copyToClipboard, getBrowserKind, getCurrenMenu } fro
 export const copyPackets = async (caido :Caido) => {
   let copy : string = "";
 
-  if (getCurrenMenu() === "Replay") {
+  if (getCurrenMenu() === "#/replay") {
     let requestId :string|null = "";
     let responseId :string|null = "";
     let request :string = "";
@@ -53,7 +53,7 @@ export const copyPackets = async (caido :Caido) => {
     copy += "\r\n\r\n";
     copy += "[ HTTP Response ]\r\n"
     copy += response.trimEnd();
-  } else if (getCurrenMenu() === "HTTP History" || getCurrenMenu() === "Search") {
+  } else if (getCurrenMenu() === "#/intercept" || getCurrenMenu() === "#/history") {
     const rowIds :string[] = getSelectedRowsId();
     let packets :string[] = [];
 
@@ -61,7 +61,7 @@ export const copyPackets = async (caido :Caido) => {
     // cleanup() : remove garbage characters and cleanup string.
     for (let idx = 0; idx < rowIds.length; idx++){
       if (rowIds[idx] !== "" && rowIds[idx] !== null && rowIds[idx] !== undefined) {
-        let getRequestData :Promise<RequestQuery> = caido.graphql.request({id:rowIds[idx as number] as string});
+        let getRequestData :Promise<RequestQuery> = caido.graphql.request({id:rowIds[idx as number] as string});        
         if (getRequestData === null || getRequestData === undefined) {
           continue;
         }
@@ -96,7 +96,7 @@ export const copyPackets = async (caido :Caido) => {
   }
 
   //console.log(copied)
-  if (getBrowserKind() === "Safari") {
+  if (getBrowserKind() === "Mozilla") {
     copyDialog(caido, copy);
   } else {
     copyToClipboard(copy);
